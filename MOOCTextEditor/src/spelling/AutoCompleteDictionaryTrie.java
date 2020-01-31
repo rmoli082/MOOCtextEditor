@@ -1,6 +1,7 @@
 package spelling;
 
 import java.util.List;
+import java.util.Queue;
 import java.util.Set;
 import java.util.Collection;
 import java.util.HashMap;
@@ -48,11 +49,11 @@ public class AutoCompleteDictionaryTrie implements  Dictionary, AutoComplete {
 		char[] splits = word.toLowerCase().toCharArray();
 
 		for (char letter : splits) {
-			
+
 			if (current.getChild(letter) == null) {
 				current = current.insert(letter);
 			} else {
-			current = current.getChild(letter);
+				current = current.getChild(letter);
 			}
 		}
 		if (current.endsWord()) {
@@ -136,8 +137,31 @@ public class AutoCompleteDictionaryTrie implements  Dictionary, AutoComplete {
 		 //       If it is a word, add it to the completions list
 		 //       Add all of its child nodes to the back of the queue
 		 // Return the list of completions
-
-		 return null;
+		 List<String> completions = new LinkedList();
+		 char[] word = prefix.toLowerCase().toCharArray();
+		 Queue<TrieNode> queue = new LinkedList<TrieNode>();
+		 TrieNode current = root;
+		 for (char letter : word) {
+			 if (current.getChild(letter) != null) {
+				 current = current.getChild(letter);
+			 } else {
+				 return completions;
+			 }
+		 }
+		 queue.add(current);
+		 while (!queue.isEmpty() && numCompletions > completions.size()) {
+			 // visit queue and remove node;
+			 current = queue.remove();
+			 // if isWord(node) completions.add;
+			 if (isWord(current.getText())) {
+				 completions.add(current.getText());
+			 }
+			 // add child nodes to queue;
+			for (char ch : current.getValidNextCharacters()) {
+				queue.add(current.getChild(ch));
+			}
+		 }
+		 return completions;
 	 }
 
 	 // For debugging
